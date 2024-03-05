@@ -18,7 +18,8 @@ public class ProductController {
 
         this.productService = productService;
     }
-
+    /*just simple modification
+    * */
     /* Get all products
     Get all categories
     Update a product
