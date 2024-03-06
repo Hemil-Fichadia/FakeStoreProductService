@@ -18,8 +18,6 @@ public class ProductController {
 
         this.productService = productService;
     }
-    /*just simple modification
-    * */
     /* Get all products
     Get all categories
     Update a product
@@ -74,7 +72,5 @@ public class ProductController {
     @DeleteMapping("/products/{id}")
     public void deleteProduct(@PathVariable("id") long productId){
         productService.deleteProduct(productId);
-        /* Added this commit to check the functionality
-        * */
     }
 }
