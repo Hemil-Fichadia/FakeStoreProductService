@@ -1,6 +1,8 @@
 package dev.hemil.fakestoreproductservice.services;
 
 import dev.hemil.fakestoreproductservice.dtos.CreateProductRequestDto;
+import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
+import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
 import dev.hemil.fakestoreproductservice.models.Category;
 import dev.hemil.fakestoreproductservice.models.Product;
 
@@ -11,7 +13,7 @@ public interface ProductService {
     all the methods are declared here first and then override
     in the implemented class
     * */
-    Product getSingleProduct(long productId);
+    Product getSingleProduct(long productId) throws ProductNotFoundException;
 
     Product createProduct(String title,
                           String description,
@@ -19,9 +21,9 @@ public interface ProductService {
                           double price,
                           String image);
 
-    List<Product> getProductsInSpecificCategory(String category);
+    List<Product> getProductsInSpecificCategory(String category) throws ProductNotFoundException, CategoryNotFoundException;
 
-    List<Product> allProductsInStore();
+    List<Product> allProductsInStore() throws ProductNotFoundException;
 
     List<String> getAllProductsCategories();
 
@@ -30,7 +32,7 @@ public interface ProductService {
                           String description,
                           String category,
                           double price,
-                          String image);
+                          String image) throws ProductNotFoundException;
 
-    void deleteProduct(long id);
+    void deleteProduct(long id) throws ProductNotFoundException;
 }

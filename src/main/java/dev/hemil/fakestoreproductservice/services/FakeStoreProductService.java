@@ -2,8 +2,12 @@ package dev.hemil.fakestoreproductservice.services;
 
 import dev.hemil.fakestoreproductservice.dtos.CreateProductRequestDto;
 import dev.hemil.fakestoreproductservice.dtos.FakeStoreProductDto;
+import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
+import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
 import dev.hemil.fakestoreproductservice.models.Category;
 import dev.hemil.fakestoreproductservice.models.Product;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,12 +31,18 @@ public class FakeStoreProductService implements ProductService{
     /* These are the methods that have been implemented from ProductService interface
     */
     @Override
-    public Product getSingleProduct(long productId) {
-         FakeStoreProductDto fakeStoreProduct = restTemplate.getForObject(
+    public Product getSingleProduct(long productId) throws ProductNotFoundException {
+         ResponseEntity<FakeStoreProductDto> fakeStoreProductResponse = restTemplate.getForEntity(
                 "https://fakestoreapi.com/products/" + productId,
                 FakeStoreProductDto.class
         );
-        return fakeStoreProduct.toProduct();
+
+         FakeStoreProductDto fakeStoreSingleProduct = fakeStoreProductResponse.getBody();
+
+         if(fakeStoreSingleProduct == null){
+             throw new ProductNotFoundException("Product with id : "+productId+ " doesn't exist. Retry with some other product.");
+         }
+        return fakeStoreSingleProduct.toProduct();
     }
 
 
@@ -50,37 +60,53 @@ public class FakeStoreProductService implements ProductService{
         fakeStoreProductDto.setPrice(price);
         fakeStoreProductDto.setImage(image);
 
-        System.out.println("Service : "+title);
-        FakeStoreProductDto response = restTemplate.postForObject(
+        ResponseEntity<FakeStoreProductDto> createFakeStoreProductResponse = restTemplate.postForEntity(
                 "https://fakestoreapi.com/products",
                 fakeStoreProductDto,
                 FakeStoreProductDto.class
         );
+
+        FakeStoreProductDto response = createFakeStoreProductResponse.getBody();
+
         return response.toProduct();
     }
 
     @Override
-    public List<Product> getProductsInSpecificCategory(String category) {
-         FakeStoreProductDto[] response = restTemplate.getForObject(
+    public List<Product> getProductsInSpecificCategory(String category) throws CategoryNotFoundException {
+         ResponseEntity<FakeStoreProductDto[]> fakeStoreProductsResponse = restTemplate.getForEntity(
                 "https://fakestoreapi.com/products/category/" + category,
                 FakeStoreProductDto[].class
         );
-        List<Product> allProductsInACategory = new ArrayList<>();
-        for(FakeStoreProductDto dto : response){
+
+         FakeStoreProductDto[] productsInSpecificCategory = fakeStoreProductsResponse.getBody();
+
+        if(productsInSpecificCategory.length == 0){
+             throw new CategoryNotFoundException("Category "+category+" does not exist. Retry with some mentioned categories");
+         }
+
+         List<Product> allProductsInACategory = new ArrayList<>();
+
+        for(FakeStoreProductDto dto : productsInSpecificCategory){
             allProductsInACategory.add(dto.toProduct());
         }
         return allProductsInACategory;
     }
 
     @Override
-    public List<Product> allProductsInStore() {
-        FakeStoreProductDto[] response = restTemplate.getForObject(
+    public List<Product> allProductsInStore() throws ProductNotFoundException {
+        ResponseEntity<FakeStoreProductDto[]> fakeStoreAllProductResponse = restTemplate.getForEntity(
                 "https://fakestoreapi.com/products" ,
                 FakeStoreProductDto[].class
         );
 
-        List<Product> allProducts = new ArrayList<>();
-        for(FakeStoreProductDto dto : response){
+        FakeStoreProductDto[] allProductsReceived = fakeStoreAllProductResponse.getBody();
+
+        if(allProductsReceived.length == 0){
+            throw new ProductNotFoundException("Store doesn't have products to be  displayed");
+        }
+
+        List<Product>  allProducts = new ArrayList<>();
+        for(FakeStoreProductDto dto : allProductsReceived){
             allProducts.add(dto.toProduct());
         }
         return allProducts;
@@ -101,7 +127,10 @@ public class FakeStoreProductService implements ProductService{
                                  String description,
                                  String category,
                                  double price,
-                                 String image) {
+                                 String image) throws ProductNotFoundException {
+
+        getSingleProduct(id);
+
         FakeStoreProductDto updateRequest = new FakeStoreProductDto();
         updateRequest.setId(id);
         updateRequest.setTitle(title);
@@ -110,7 +139,7 @@ public class FakeStoreProductService implements ProductService{
         updateRequest.setPrice(price);
         updateRequest.setImage(image);
 
-        restTemplate.put(
+         restTemplate.put(
                 "https://fakestoreapi.com/products/" + id,
                 updateRequest,
                 FakeStoreProductDto.class/* <- here i am facing error related to method*/
@@ -119,7 +148,9 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public void deleteProduct(long id) {
+    public void deleteProduct(long id) throws ProductNotFoundException {
+        getSingleProduct(id);
+
         restTemplate.delete(
                 "https://fakestoreapi.com/products/"+id);
     }
