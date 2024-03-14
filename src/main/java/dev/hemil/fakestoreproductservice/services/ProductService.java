@@ -9,11 +9,11 @@ import dev.hemil.fakestoreproductservice.models.Product;
 import java.util.List;
 
 public interface ProductService {
-    /*This is a service interface which is implemented and
+    /*This is a service interface that is implemented, and
     all the methods are declared here first and then override
     in the implemented class
     * */
-    Product getSingleProduct(long productId) throws ProductNotFoundException;
+    Product getSingleProduct(Long productId) throws ProductNotFoundException;
 
     Product createProduct(String title,
                           String description,
@@ -27,12 +27,18 @@ public interface ProductService {
 
     List<String> getAllProductsCategories();
 
-    Product updateProduct(long id,
+    Product replaceProduct(Long id,
+                          String title,
+                          String description,
+                          String category,
+                          double price,
+                          String image) throws ProductNotFoundException;
+    Product updateProduct(Long id,
                           String title,
                           String description,
                           String category,
                           double price,
                           String image) throws ProductNotFoundException;
 
-    void deleteProduct(long id) throws ProductNotFoundException;
+    void deleteProduct(Long id) throws ProductNotFoundException;
 }

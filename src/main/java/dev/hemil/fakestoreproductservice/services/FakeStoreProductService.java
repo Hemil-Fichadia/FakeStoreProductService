@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service("fakeStoreProductService")
 public class FakeStoreProductService implements ProductService{
 
     //Bean of RestTemplate to inject into service constructor.
@@ -31,7 +31,7 @@ public class FakeStoreProductService implements ProductService{
     /* These are the methods that have been implemented from ProductService interface
     */
     @Override
-    public Product getSingleProduct(long productId) throws ProductNotFoundException {
+    public Product getSingleProduct(Long productId) throws ProductNotFoundException {
          ResponseEntity<FakeStoreProductDto> fakeStoreProductResponse = restTemplate.getForEntity(
                 "https://fakestoreapi.com/products/" + productId,
                 FakeStoreProductDto.class
@@ -122,33 +122,97 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product updateProduct(long id,
+    public Product replaceProduct(Long id,
                                  String title,
                                  String description,
                                  String category,
                                  double price,
                                  String image) throws ProductNotFoundException {
 
-        getSingleProduct(id);
+        /* The get single product will handle the exception to id not existing.
+        * */
+        Product existingProduct = getSingleProduct(id);
 
-        FakeStoreProductDto updateRequest = new FakeStoreProductDto();
-        updateRequest.setId(id);
-        updateRequest.setTitle(title);
-        updateRequest.setDescription(description);
-        updateRequest.setCategory(category);
-        updateRequest.setPrice(price);
-        updateRequest.setImage(image);
+        FakeStoreProductDto replaceRequest = new FakeStoreProductDto();
+        replaceRequest.setId(id);
+        replaceRequest.setTitle(title);
+        replaceRequest.setDescription(description);
+        replaceRequest.setCategory(category);
+        replaceRequest.setPrice(price);
+        replaceRequest.setImage(image);
 
          restTemplate.put(
                 "https://fakestoreapi.com/products/" + id,
-                updateRequest,
+                 replaceRequest,
                 FakeStoreProductDto.class/* <- here i am facing error related to method*/
         );
-        return updateRequest.toProduct();
+
+         /*updating and returning the exiting product to ensure that the changes are
+         carried out on some exiting product.
+         */
+         existingProduct.setTitle(replaceRequest.getTitle());
+         existingProduct.setDescription(replaceRequest.getDescription());
+         existingProduct.setPrice(replaceRequest.getPrice());
+         existingProduct.setImageUrl(replaceRequest.getImage());
+         /* Even if the category sent is same as previous, replace it with the one
+         that is received to ensure all changes are carried out.
+         * */
+         Category newCategory = new Category();
+         newCategory.setTitle(replaceRequest.getCategory());
+
+        return existingProduct;
     }
 
     @Override
-    public void deleteProduct(long id) throws ProductNotFoundException {
+    public Product updateProduct(Long id, String title, String description, String category, double price, String image) throws ProductNotFoundException {
+        /* Get single product will handle the exception of product not found.
+        * */
+        Product existingProduct = getSingleProduct(id);
+
+        FakeStoreProductDto updateRequest = new FakeStoreProductDto();
+        /* Transferring all fields data of existing product to updateReqeust and then
+        updating those fields which are not null
+        * */
+        updateRequest.setTitle(existingProduct.getTitle());
+        updateRequest.setDescription(existingProduct.getDescription());
+        updateRequest.setPrice(existingProduct.getPrice());
+        updateRequest.setImage(existingProduct.getImageUrl());
+        updateRequest.setCategory(existingProduct.getCategory().getTitle());
+
+        if(title != null){
+            updateRequest.setTitle(title);
+            existingProduct.setTitle(title);
+        }
+        if(description != null){
+            updateRequest.setDescription(description);
+            existingProduct.setDescription(description);
+        }
+        if(price != 0.0d){
+            updateRequest.setPrice(price);
+            existingProduct.setPrice(price);
+        }
+        if(image != null){
+            updateRequest.setImage(image);
+            existingProduct.setImageUrl(image);
+        }
+        if(category != null){
+            updateRequest.setCategory(category);
+            Category newCategory = new Category();
+            newCategory.setTitle(category);
+            existingProduct.setCategory(newCategory);
+        }
+        //This patch request is faulty in fakestoreapi
+//        restTemplate.patchForObject(
+//                "https://fakestoreapi.com/products" + id,
+//                updateRequest,
+//                FakeStoreProductDto.class
+//        );
+
+        return existingProduct;
+    }
+
+    @Override
+    public void deleteProduct(Long id) throws ProductNotFoundException {
         getSingleProduct(id);
 
         restTemplate.delete(

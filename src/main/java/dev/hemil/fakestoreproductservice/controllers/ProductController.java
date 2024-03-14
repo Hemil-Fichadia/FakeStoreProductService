@@ -1,11 +1,14 @@
 package dev.hemil.fakestoreproductservice.controllers;
 
 import dev.hemil.fakestoreproductservice.dtos.CreateProductRequestDto;
+import dev.hemil.fakestoreproductservice.dtos.ReplaceProductRequestDto;
+import dev.hemil.fakestoreproductservice.dtos.UpdateProductRequestDto;
 import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
 import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
 import dev.hemil.fakestoreproductservice.models.Product;
 import dev.hemil.fakestoreproductservice.services.ProductService;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +20,7 @@ public class ProductController {
 
     private ProductService productService;
 
-    public ProductController(ProductService productService){
+    public ProductController(@Qualifier("selfProductService") ProductService productService){
 
         this.productService = productService;
     }
@@ -43,7 +46,7 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    public ResponseEntity<Product> getProductDetails(@PathVariable("id") long productId) throws ProductNotFoundException {
+    public ResponseEntity<Product> getProductDetails(@PathVariable("id") Long productId) throws ProductNotFoundException {
 
         Product singleProduct = productService.getSingleProduct(productId);
 
@@ -54,7 +57,7 @@ public class ProductController {
     @GetMapping("/products")
     public ResponseEntity<List<Product>> getAllProducts() throws ProductNotFoundException {
 
-        List<Product> allProducts =productService.allProductsInStore();
+        List<Product> allProducts = productService.allProductsInStore();
 
         return new ResponseEntity<>(allProducts, HttpStatus.OK);
     }
@@ -70,14 +73,27 @@ public class ProductController {
     @GetMapping("/products/categories")
     public ResponseEntity<List<String>> getAllCategories(){
 
-        List<String> allCategories =productService.getAllProductsCategories();
+        List<String> allCategories = productService.getAllProductsCategories();
 
         return new ResponseEntity<>(allCategories, HttpStatus.OK);
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable("id") long id,@RequestBody CreateProductRequestDto updateRequest) throws ProductNotFoundException {
+    public ResponseEntity<Product> replaceProduct(@PathVariable("id") Long id, @RequestBody ReplaceProductRequestDto replaceRequest) throws ProductNotFoundException {
 
+        Product replaceProductResponse = productService.replaceProduct(id,
+                replaceRequest.getTitle(),
+                replaceRequest.getDescription(),
+                replaceRequest.getCategory(),
+                replaceRequest.getPrice(),
+                replaceRequest.getImage()
+        );
+
+        return new ResponseEntity<>(replaceProductResponse, HttpStatus.OK);
+    }
+
+    @PatchMapping("/products/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody UpdateProductRequestDto updateRequest) throws ProductNotFoundException {
         Product updateProductResponse = productService.updateProduct(id,
                 updateRequest.getTitle(),
                 updateRequest.getDescription(),
@@ -90,7 +106,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("id") long productId) throws ProductNotFoundException {
+    public ResponseEntity<String> deleteProduct(@PathVariable("id") Long productId) throws ProductNotFoundException {
 
         productService.deleteProduct(productId);
         String deleteResponse = "Product with id : " + productId + " is deleted";
