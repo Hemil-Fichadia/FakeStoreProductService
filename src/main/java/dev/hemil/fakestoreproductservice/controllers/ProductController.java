@@ -9,6 +9,7 @@ import dev.hemil.fakestoreproductservice.models.Product;
 import dev.hemil.fakestoreproductservice.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -111,6 +112,18 @@ public class ProductController {
         productService.deleteProduct(productId);
         String deleteResponse = "Product with id : " + productId + " is deleted";
         return new ResponseEntity<>(deleteResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/products/{pageSize}/{pageNumber}")
+    public ResponseEntity getProductsByPage(@PathVariable("pageSize") int pageSize, @PathVariable("pageNumber") int pageNumber){
+        Page<Product> productPage = productService.getAllProductsByPage(pageSize, pageNumber, null);
+        return ResponseEntity.ok(productPage.getContent());
+    }
+
+    @GetMapping("productsByPrice/{pageSize}/{pageNumber}")
+    public ResponseEntity getProductsByPageSortedByPrice(@PathVariable("pageSize") int pageSize, @PathVariable("pageNumber") int pageNumber){
+        Page<Product> productPage = productService.getAllProductsByPage(pageSize, pageNumber, "price");
+        return ResponseEntity.ok(productPage.getContent());
     }
 
     //    @ExceptionHandler(ProductNotFoundException.class)

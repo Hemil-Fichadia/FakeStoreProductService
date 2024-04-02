@@ -5,6 +5,7 @@ import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
 import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
 import dev.hemil.fakestoreproductservice.models.Category;
 import dev.hemil.fakestoreproductservice.models.Product;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -41,4 +42,6 @@ public interface ProductService {
                           String image) throws ProductNotFoundException;
 
     void deleteProduct(Long id) throws ProductNotFoundException;
+
+    Page<Product> getAllProductsByPage(Integer pageSize, Integer pageNumber, String sort);
 }

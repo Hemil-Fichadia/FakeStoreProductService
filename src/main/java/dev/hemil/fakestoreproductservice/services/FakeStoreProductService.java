@@ -6,6 +6,7 @@ import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
 import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
 import dev.hemil.fakestoreproductservice.models.Category;
 import dev.hemil.fakestoreproductservice.models.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -217,6 +218,11 @@ public class FakeStoreProductService implements ProductService{
 
         restTemplate.delete(
                 "https://fakestoreapi.com/products/"+id);
+    }
+
+    @Override
+    public Page<Product> getAllProductsByPage(Integer pageSize, Integer pageNumber, String sort) {
+        return null;
     }
 
 

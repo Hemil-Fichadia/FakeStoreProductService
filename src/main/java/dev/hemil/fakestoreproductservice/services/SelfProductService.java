@@ -7,6 +7,10 @@ import dev.hemil.fakestoreproductservice.models.Category;
 import dev.hemil.fakestoreproductservice.models.Product;
 import dev.hemil.fakestoreproductservice.repositories.CategoryRepository;
 import dev.hemil.fakestoreproductservice.repositories.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -121,5 +125,24 @@ public class SelfProductService implements ProductService {
             throw new ProductNotFoundException("Product with id "+id+" does not exist. Try with some other product");
         }
         productRepository.deleteById(id);
+    }
+    /* This is pagination of the data that we receive as response to make sure that we don't
+    make more clutter on UI so we display the products in terms of pages which makes it look
+    more interactive intead of all products at one go.
+    In this sort field, we pass the actual column name of a database on basis of which
+    we are looking forward to display data in sorted manner.
+     */
+    @Override
+    public Page<Product> getAllProductsByPage(Integer pageSize, Integer pageNumber, String sort) {
+        Pageable pageable = null;
+        if(sort != null){
+            //Pagination with sorting
+            pageable = PageRequest.of(pageNumber, pageSize, Sort.Direction.ASC, sort);
+        }
+        else{
+            //Pagination without sorting
+            pageable = PageRequest.of(pageNumber, pageSize);
+        }
+        return productRepository.findAll(pageable);
     }
 }
