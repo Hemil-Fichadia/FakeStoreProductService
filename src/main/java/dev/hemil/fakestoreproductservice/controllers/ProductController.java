@@ -1,14 +1,18 @@
 package dev.hemil.fakestoreproductservice.controllers;
 
+import dev.hemil.fakestoreproductservice.commons.AuthenticationCommons;
 import dev.hemil.fakestoreproductservice.dtos.CreateProductRequestDto;
 import dev.hemil.fakestoreproductservice.dtos.ReplaceProductRequestDto;
 import dev.hemil.fakestoreproductservice.dtos.UpdateProductRequestDto;
+import dev.hemil.fakestoreproductservice.dtos.UserDto;
 import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
+import dev.hemil.fakestoreproductservice.exceptions.InvalidTokenException;
 import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
 import dev.hemil.fakestoreproductservice.models.Product;
 import dev.hemil.fakestoreproductservice.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +24,13 @@ import java.util.List;
 public class ProductController {
 
     private ProductService productService;
+    private AuthenticationCommons authenticationCommons;
 
-    public ProductController(@Qualifier("selfProductService") ProductService productService){
+    public ProductController(@Qualifier("selfProductService") ProductService productService,
+                             AuthenticationCommons authenticationCommons){
 
         this.productService = productService;
+        this.authenticationCommons = authenticationCommons;
     }
     /* Get all products
     Get all categories
@@ -32,6 +39,7 @@ public class ProductController {
     Get products in a specific category
     */
 
+//    @CachePut(value = "product", key = "#")
     @PostMapping("/products")
     public ResponseEntity<Product> createProduct(@RequestBody CreateProductRequestDto request) {
 
@@ -46,8 +54,13 @@ public class ProductController {
         return new ResponseEntity<>(createProductResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/products/{id}")
-    public ResponseEntity<Product> getProductDetails(@PathVariable("id") Long productId) throws ProductNotFoundException {
+    @GetMapping("/products/{id}/{token}")
+    public ResponseEntity<Product> getProductDetails(@PathVariable("id") Long productId, @PathVariable("token") String token) throws ProductNotFoundException, InvalidTokenException {
+
+        UserDto userDto = authenticationCommons.validateToken(token);
+        if(userDto == null){
+            throw new InvalidTokenException("Session expired, kindly re-login");
+        }
 
         Product singleProduct = productService.getSingleProduct(productId);
 
@@ -114,13 +127,13 @@ public class ProductController {
         return new ResponseEntity<>(deleteResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/products/{pageSize}/{pageNumber}")
+    @GetMapping("/products/paginate/{pageSize}/{pageNumber}")
     public ResponseEntity getProductsByPage(@PathVariable("pageSize") int pageSize, @PathVariable("pageNumber") int pageNumber){
         Page<Product> productPage = productService.getAllProductsByPage(pageSize, pageNumber, null);
         return ResponseEntity.ok(productPage.getContent());
     }
 
-    @GetMapping("productsByPrice/{pageSize}/{pageNumber}")
+    @GetMapping("productsByPrice/paginate/{pageSize}/{pageNumber}")
     public ResponseEntity getProductsByPageSortedByPrice(@PathVariable("pageSize") int pageSize, @PathVariable("pageNumber") int pageNumber){
         Page<Product> productPage = productService.getAllProductsByPage(pageSize, pageNumber, "price");
         return ResponseEntity.ok(productPage.getContent());

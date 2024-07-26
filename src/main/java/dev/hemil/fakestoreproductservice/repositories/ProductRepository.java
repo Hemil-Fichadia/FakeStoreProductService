@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     /* These are JPA queries
@@ -41,7 +42,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     //HQL
     /* Here the projections we are using are solely dependent on the idea of receiving the objects
     and then put them back of.
-    The data type is the projection of the typical just to get the two fields from data base.
+    The data type is the projection of the typical just to get the two fields from a database.
     * */
     @Query("SELECT p.title AS title, p.id AS id FROM Product p WHERE p.category.id = :categoryId")
     List<ProductWithIdAndTitle> getTitlesOfProductsOfGivenCategory(@Param("categoryId") Long categoryId);
@@ -51,5 +52,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 
     //SQL
-
+    @Query(value = "SELECT * FROM Product p WHERE p.title = :productName", nativeQuery = true)
+    List<ProductProjection> getProductsWithName(@Param("productName") String productName);
 }

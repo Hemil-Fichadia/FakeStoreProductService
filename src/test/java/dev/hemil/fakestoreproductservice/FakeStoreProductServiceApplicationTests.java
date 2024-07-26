@@ -39,11 +39,16 @@ class FakeStoreProductServiceApplicationTests {
         all the methods and then just received some of the fields data and then printed for
         the testing purpose.
         * */
-        List<ProductProjection> receivedProductDetail =
-                productRepository.getProductDetailsOfGivenId(3L);
-        System.out.println(receivedProductDetail.get(0).getId());
-        System.out.println(receivedProductDetail.get(0).getDescription());
-        System.out.println(receivedProductDetail.get(0).getTitle());
+//        List<ProductProjection> receivedProductDetail =
+//                productRepository.getProductDetailsOfGivenId(3L);
+//        System.out.println(receivedProductDetail.get(0).getId());
+//        System.out.println(receivedProductDetail.get(0).getDescription());
+//        System.out.println(receivedProductDetail.get(0).getTitle());
 
+        List<ProductProjection> receivedProductData = productRepository.getProductsWithName("OnePlus 12");
+        System.out.println("Id : "+receivedProductData.get(0).getId());
+        System.out.println("Title : "+receivedProductData.get(0).getTitle());
+        System.out.println("Price : "+receivedProductData.get(0).getPrice());
+        System.out.println("Description : "+receivedProductData.get(0).getDescription());
     }
 }

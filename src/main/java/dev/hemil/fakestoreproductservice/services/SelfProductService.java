@@ -1,6 +1,5 @@
 package dev.hemil.fakestoreproductservice.services;
 
-
 import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
 import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
 import dev.hemil.fakestoreproductservice.models.Category;
@@ -126,9 +125,10 @@ public class SelfProductService implements ProductService {
         }
         productRepository.deleteById(id);
     }
+    
     /* This is pagination of the data that we receive as response to make sure that we don't
     make more clutter on UI so we display the products in terms of pages which makes it look
-    more interactive intead of all products at one go.
+    more interactive instead of all products at one go.
     In this sort field, we pass the actual column name of a database on basis of which
     we are looking forward to display data in sorted manner.
      */

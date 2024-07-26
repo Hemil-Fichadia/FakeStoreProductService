@@ -1,9 +1,7 @@
 package dev.hemil.fakestoreproductservice.services;
 
-import dev.hemil.fakestoreproductservice.dtos.CreateProductRequestDto;
 import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
 import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
-import dev.hemil.fakestoreproductservice.models.Category;
 import dev.hemil.fakestoreproductservice.models.Product;
 import org.springframework.data.domain.Page;
 

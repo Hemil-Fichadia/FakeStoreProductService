@@ -7,4 +7,5 @@ public interface ProductProjection {
     String getDescription();
     double getPrice();
     String getImageUrl();
+    String getCategory();
 }

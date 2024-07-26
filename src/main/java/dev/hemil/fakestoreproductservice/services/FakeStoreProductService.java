@@ -1,13 +1,12 @@
 package dev.hemil.fakestoreproductservice.services;
 
-import dev.hemil.fakestoreproductservice.dtos.CreateProductRequestDto;
+
 import dev.hemil.fakestoreproductservice.dtos.FakeStoreProductDto;
 import dev.hemil.fakestoreproductservice.exceptions.CategoryNotFoundException;
 import dev.hemil.fakestoreproductservice.exceptions.ProductNotFoundException;
 import dev.hemil.fakestoreproductservice.models.Category;
 import dev.hemil.fakestoreproductservice.models.Product;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -148,7 +147,7 @@ public class FakeStoreProductService implements ProductService{
                 FakeStoreProductDto.class/* <- here i am facing error related to method*/
         );
 
-         /*updating and returning the exiting product to ensure that the changes are
+         /*updating and returning the existing product to ensure that the changes are
          carried out on some exiting product.
          */
          existingProduct.setTitle(replaceRequest.getTitle());
@@ -222,6 +221,7 @@ public class FakeStoreProductService implements ProductService{
 
     @Override
     public Page<Product> getAllProductsByPage(Integer pageSize, Integer pageNumber, String sort) {
+
         return null;
     }
 
