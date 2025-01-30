@@ -51,4 +51,6 @@ class FakeStoreProductServiceApplicationTests {
         System.out.println("Price : "+receivedProductData.get(0).getPrice());
         System.out.println("Description : "+receivedProductData.get(0).getDescription());
     }
+
+
 }

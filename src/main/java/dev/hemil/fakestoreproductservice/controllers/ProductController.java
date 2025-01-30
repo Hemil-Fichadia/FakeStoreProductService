@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -25,12 +26,15 @@ public class ProductController {
 
     private ProductService productService;
     private AuthenticationCommons authenticationCommons;
+    private RestTemplate restTemplate;
 
     public ProductController(@Qualifier("selfProductService") ProductService productService,
-                             AuthenticationCommons authenticationCommons){
+                             AuthenticationCommons authenticationCommons,
+                             RestTemplate restTemplate){
 
         this.productService = productService;
         this.authenticationCommons = authenticationCommons;
+        this.restTemplate = restTemplate;
     }
     /* Get all products
     Get all categories
@@ -57,14 +61,18 @@ public class ProductController {
     @GetMapping("/products/{id}/{token}")
     public ResponseEntity<Product> getProductDetails(@PathVariable("id") Long productId, @PathVariable("token") String token) throws ProductNotFoundException, InvalidTokenException {
 
-        UserDto userDto = authenticationCommons.validateToken(token);
-        if(userDto == null){
-            throw new InvalidTokenException("Session expired, kindly re-login");
-        }
+//        UserDto userDto = authenticationCommons.validateToken(token);
+//        if(userDto == null){
+//            throw new InvalidTokenException("Session expired, kindly re-login");
+//        }
+//
+//        Product singleProduct = productService.getSingleProduct(productId);
+//
+//        return new ResponseEntity<>(singleProduct, HttpStatus.OK);
 
-        Product singleProduct = productService.getSingleProduct(productId);
+        restTemplate.getForObject("http://userservice/users/1", UserDto.class);
 
-        return new ResponseEntity<>(singleProduct, HttpStatus.OK);
+        return new ResponseEntity<>(productService.getSingleProduct(productId), HttpStatus.OK);
     }
 
 
